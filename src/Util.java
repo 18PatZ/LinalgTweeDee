@@ -10,6 +10,26 @@ public class Util {
         return ans;
     }
 
+    public static double getAngle(double dX, double dY){
+        if(dY != 0)
+            return Math.toDegrees(Math.atan(dX / -dY)) + (dY > 0 ? 180 : 0);
+        else if(dX != 0)
+            return dX > 0 ? 90 : -90;
+        return 0;
+    }
+
+    public static double dist(double x1, double y1, double x2, double y2){
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
+    public static double[] rotate(double x, double y, double theta){
+        double rang = Math.atan(((double)y)/x) + (x < 0 ? Math.PI : 0);
+        double ang = rang - theta * Math.PI/180;
+        double hyp = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        double[] newCoords = {Math.cos(ang) * hyp, Math.sin(ang) * hyp};
+        return newCoords;
+    }
+
     // in radians
     public static double[][] rotationMatrix(double a, double b, double c){
         return mult(new double[][]

@@ -72,21 +72,35 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
             @Override
             public void handle(long arg) {
 
-                context.clearRect(0, 0, width, height);
-
                 context.setFill(Color.BLACK);
                 context.fillRect(0, 0, width, height);
 
-                context.setLineWidth(3);
-                context.setStroke(Color.YELLOW);
+                context.setFill(Color.YELLOW);
 
                 lines = Main.getLines(Util.mult(Util.rotationMatrix(theta, 0, 0), Main.points));
 
                 if(lines != null){
                     lines.forEach(l -> {
-                        context.moveTo(width / 2.0 + l.p1[0], height / 2.0 - l.p1[1]);
-                        context.lineTo(width / 2.0 + l.p2[0], height / 2.0 - l.p2[1]);
-                        context.stroke();
+
+                        double p1 = width / 2.0 + l.p1[0];
+                        double p1y = height / 2.0 - l.p1[1];
+
+                        double p2 = width / 2.0 + l.p2[0];
+                        double p2y = height / 2.0 - l.p2[1];
+
+                        double angle = Util.getAngle(p2 - p1, p2y - p1y) - 90;
+
+                        context.save();
+                        context.rotate(angle);
+
+                        double[] p1r = Util.rotate(p1, p1y, angle);
+
+                        double mag = Util.dist(p1, p1y, p2, p2y);
+
+                        context.fillRect(p1r[0], p1r[1], mag, 3);
+
+                        context.restore();
+
                     });
 
                     System.out.println(lines.size());
@@ -96,7 +110,9 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
                 context.setFont(Font.font("Verdana", 20));
                 context.fillText("Angle: " + (int)Math.toDegrees(theta) + " degrees", 100, 100);
 
-                theta += Math.PI * 2.0 / 120.0;
+                theta = (theta + Math.PI * 2.0 / 120.0) % (Math.PI * 2);
+
+//                this.stop();
 
             }
 
