@@ -8,6 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.awt.*;
 import java.util.List;
@@ -97,20 +98,18 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
                         double mag = Util.dist(p1, p1y, p2, p2y);
 
-                        context.fillRect(p1r[0], p1r[1], mag, 3);
+                        context.fillRect(p1r[0], p1r[1] - 2, mag, 4);
 
                         context.restore();
 
                     });
-
-                    System.out.println(lines.size());
                 }
 
                 context.setFill(Color.WHITESMOKE);
-                context.setFont(Font.font("Verdana", 20));
+                context.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 20));
                 context.fillText("Angle: " + (int)Math.toDegrees(theta) + " degrees", 100, 100);
 
-                theta = (theta + Math.PI * 2.0 / 120.0) % (Math.PI * 2);
+                theta = (theta + Math.PI * 2.0 / 180.0) % (Math.PI * 2);
 
 //                this.stop();
 
