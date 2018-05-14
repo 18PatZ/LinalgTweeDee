@@ -11,6 +11,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.awt.*;
+import java.util.HashSet;
 import java.util.List;
 
 public class Screen extends Application implements EventHandler<KeyEvent> {
@@ -21,6 +22,9 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
     public static Screen instance;
     public static List<Line> lines;
+
+    private static HashSet<String> input = new HashSet<>();
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -43,6 +47,7 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
         stage.show();
 
         scene.setOnKeyPressed(this);                                // Register oneself as the key press listener
+        scene.setOnKeyReleased(this);
 
 //        double minX = Double.MAX_VALUE;
 //        double maxX = Double.MIN_VALUE;
@@ -68,7 +73,9 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 //
         new AnimationTimer(){
 
-            double theta = 0;
+            double thetaX = 0;
+            double thetaY = 0;
+            double thetaZ = 0;
 
             @Override
             public void handle(long arg) {
@@ -78,7 +85,7 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
                 context.setFill(Color.YELLOW);
 
-                lines = Main.getLines(Util.mult(Util.rotationMatrix(theta, 0, 0), Main.points));
+                lines = Main.getLines(Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ), Main.points));
 
                 if(lines != null){
                     lines.forEach(l -> {
@@ -107,9 +114,29 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
                 context.setFill(Color.WHITESMOKE);
                 context.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 20));
-                context.fillText("Angle: " + (int)Math.toDegrees(theta) + " degrees", 100, 100);
+                context.fillText("Pitch: " + (int)Math.toDegrees(thetaX) % 360 + " degrees", 100, 100);
+                context.fillText("Yaw: " + (int)Math.toDegrees(thetaY) % 360 + " degrees", 100, 150);
+                context.fillText("Roll: " + (int)Math.toDegrees(thetaZ) % 360 + " degrees", 100, 200);
 
-                theta = (theta + Math.PI * 2.0 / 180.0) % (Math.PI * 2);
+                double speed = Math.PI * 2.0 / 180.0;
+
+                if(isPressed("W"))
+                    thetaX -= speed;
+                else if(isPressed("S"))
+                    thetaX += speed;
+
+                if(isPressed("A"))
+                    thetaY -= speed;
+                else if(isPressed("D"))
+                    thetaY += speed;
+
+                if(isPressed("Q"))
+                    thetaZ -= speed;
+                else if(isPressed("E"))
+                    thetaZ += speed;
+
+
+//                theta = (theta + Math.PI * 2.0 / 180.0) % (Math.PI * 2);
 
 //                this.stop();
 
@@ -128,6 +155,15 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
         if(event.getCode().getName().equals("Esc"))
             System.exit(0);
 
+        if(event.getEventType() == KeyEvent.KEY_PRESSED)
+            input.add(event.getCode().toString().toLowerCase());
+        else if(event.getEventType() == KeyEvent.KEY_RELEASED)
+            input.remove(event.getCode().toString().toLowerCase());
+
+    }
+
+    public static boolean isPressed(String str){
+        return input.contains(str.toLowerCase());
     }
 
 
