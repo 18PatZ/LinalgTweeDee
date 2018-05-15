@@ -71,6 +71,9 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 //        double yOff = 0;
 //        double rScale = 1;
 //
+
+        Player player = new Player();
+
         new AnimationTimer(){
 
             double thetaX = 0;
@@ -85,9 +88,20 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
                 context.setFill(Color.YELLOW);
 
+                player.tick(0);
+
+//                double ang = Math.toRadians(Util.getAngle(player.x, player.y));
+//                thetaY = player.angle / 2.0;
+
+//                thetaY = Math.toRadians(-45);
+
                 lines = Main.getLines(Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ), Main.points));
 
-                if(lines != null){
+                double dX = 0;
+//                double dX = player.x + Math.sin(player.angle) * (width / 2.0 + 100);
+//                double dY = player.y + Math.sin(ang) * 100;
+
+                if(lines != null){// && Math.cos(player.angle) >= 0){
                     lines.forEach(l -> {
 
                         double p1 = width / 2.0 + l.p1[0];
@@ -101,7 +115,7 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
                         context.save();
                         context.rotate(angle);
 
-                        double[] p1r = Util.rotate(p1, p1y, angle);
+                        double[] p1r = Util.rotate(p1 - dX, p1y, angle);
 
                         double mag = Util.dist(p1, p1y, p2, p2y);
 
@@ -115,8 +129,8 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
                 context.setFill(Color.WHITESMOKE);
                 context.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 20));
                 context.fillText("Pitch: " + (int)Math.toDegrees(thetaX) % 360 + " degrees", 100, 100);
-                context.fillText("Yaw: " + (int)Math.toDegrees(thetaY) % 360 + " degrees", 100, 150);
-                context.fillText("Roll: " + (int)Math.toDegrees(thetaZ) % 360 + " degrees", 100, 200);
+                context.fillText("Yaw: " + (int)Math.toDegrees(thetaY) % 360 + " degrees", 100, 120);
+                context.fillText("Roll: " + (int)Math.toDegrees(thetaZ) % 360 + " degrees", 100, 140);
 
                 double speed = Math.PI * 2.0 / 180.0;
 
@@ -138,7 +152,6 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
 //                theta = (theta + Math.PI * 2.0 / 180.0) % (Math.PI * 2);
 
-//                this.stop();
 
             }
 
