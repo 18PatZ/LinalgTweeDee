@@ -10,11 +10,16 @@ public class Main {
         .650, .800, .650, .125}, {.000, -.866, -.866, .000, .866, .866, .000,
         -.546, -.364, .000, .364, .546}};
 
-    private static int[][] lineIndices = {{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 1}, {7, 8}, {8, 9}, {9, 10}, {10, 11}, {11, 12}, {12, 7}, {1, 7}, {2, 8}, {3, 9}, {4, 10}, {5, 11}, {6, 12}};
+    public static int[][] lineIndices =
+            {{1, 2}, {2, 3}, {3, 4}, {4, 5}, {5, 6}, {6, 1}, {7, 8}, {8, 9}, {9, 10}, {10, 11}, {11, 12}, {12, 7}, {1, 7}, {2, 8}, {3, 9}, {4, 10}, {5, 11}, {6, 12}};
 
     private static double[][] scaling = {{1.5, 0, 0}, {0, 0.8, 0}, {0, 0, 3.0}};
 
-    private static double[][] getDisplayed(double[][] points){
+    public static double[][] gridPoints = {{-1, -1, 0, 0, 1, 1}, {3, -3, 3, -3, 3, -3}, {0, 0, 0, 0, 0, 0}};
+    public static int[][] gridLineIndices =
+            {{1, 2}, {3, 4}, {5, 6}};
+
+    public static double[][] getDisplayed(double[][] points){
         double[][] disp = new double[points[0].length][2];
         for(int i = 0; i < points[0].length; i++){
             double[] col = Util.getColumn(points, i);
@@ -24,12 +29,23 @@ public class Main {
         return disp;
     }
 
-    public static List<Line> getLines(double[][] points){
+    public static List<Line> getLines(double[][] points, int[][] lineIndices){
         points = getDisplayed(points);
 
         List<Line> lines = new ArrayList<>();
 
         for (int[] lineIndex : lineIndices)
+            lines.add(new Line(points[lineIndex[0] - 1], points[lineIndex[1] - 1]));
+
+        return lines;
+    }
+
+    public static List<Line> getGridLines(double[][] points){
+        points = getDisplayed(points);
+
+        List<Line> lines = new ArrayList<>();
+
+        for (int[] lineIndex : gridLineIndices)
             lines.add(new Line(points[lineIndex[0] - 1], points[lineIndex[1] - 1]));
 
         return lines;
@@ -53,9 +69,10 @@ public class Main {
         System.out.println(print(Util.mult(scaling, points)));
 
 //        Screen.lines = getLines(Util.mult(Util.rotationMatrix(Math.PI / 2, 0, 0), points));
-        Screen.lines = getLines(points);
+        Screen.lines = getLines(points, lineIndices);
 
-        Application.launch(Screen.class);
+//        Application.launch(Screen.class);
+        Application.launch(Screen2.class);
     }
 
 }

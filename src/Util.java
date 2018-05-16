@@ -10,6 +10,17 @@ public class Util {
         return ans;
     }
 
+    public static double[][] translate(double[][] a, double dX, double dY, double dZ){
+        double[][] b = new double[a.length][a[0].length];
+
+        for(int i = 0; i < a[0].length; i++){
+            b[0][i] = a[0][i] + dX;
+            b[1][i] = a[1][i] + dY;
+            b[2][i] = a[2][i] +dZ;
+        }
+        return b;
+    }
+
     public static double getAngle(double dX, double dY){
         if(dY != 0)
             return Math.toDegrees(Math.atan(dX / -dY)) + (dY > 0 ? 180 : 0);

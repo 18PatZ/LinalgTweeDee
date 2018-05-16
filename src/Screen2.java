@@ -1,0 +1,141 @@
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Screen2 extends Application implements EventHandler<KeyEvent>, ScreenI {
+
+    private GraphicsContext context;
+    private static int width = 1000;
+    private static int height = 1000;
+
+    public static Screen2 instance;
+    public static List<Line> lines;
+
+//    private double[][] points = {
+//            {1.000, .500, -.500, -1.000, -.500, .500, .840, .315, -.210, -.360, -.210, .315},
+//            {-.800, -.800, -.800, -.800, -.800, -.800, -.400, .125, .650, .800, .650, .125},
+//            {.000, -.866, -.866, .000, .866, .866, .000, -.546, -.364, .000, .364, .546}};
+
+
+    List<Objekt> objekts = new ArrayList<>();
+
+
+
+    @Override
+    public void start(Stage stage) throws Exception {
+
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize(); // get screen size wrapper
+        width = (int)dim.getWidth();
+        height = (int)dim.getHeight();
+
+        instance = this;
+
+        Canvas canvas = new Canvas(width, height);                  // object representing onscreen canvas
+        context = canvas.getGraphicsContext2D();                    // object that handles canvas manipulation
+
+        Scene scene = new Scene(new Group(canvas));                 // create a scene with the canvas as the only node
+        stage.setScene(scene);
+        stage.setWidth(width);
+        stage.setHeight(height);
+        stage.setTitle("Screen");
+
+        stage.show();
+
+        scene.setOnKeyPressed(this);                                // Register oneself as the key press listener
+        scene.setOnKeyReleased(this);
+
+        objekts.add(new Scale(this));
+
+        Powercube cube = new Powercube(this);
+        Player player = new Player(this);
+        player.powercube = cube;
+
+        objekts.add(player);
+        objekts.add(cube);
+
+
+        new AnimationTimer(){
+
+            @Override
+            public void handle(long arg) {
+
+                lines = new ArrayList<>();
+
+                context.setFill(Color.BLACK);
+                context.fillRect(0, 0, width, height);
+
+                objekts.forEach(o -> {
+
+                    context.setFill(o.color);
+
+                    o.tick();
+
+                    double[][] rot = Util.mult(Util.rotationMatrix(0, o.angle, 0), o.points);
+
+                    Main.getLines(Util.mult(Util.rotationMatrix(Math.toRadians(30), 0, 0),
+                            Util.translate(rot, o.x, o.vertical, o.y)), o.lineIndices).forEach(l -> {
+
+                        double p1 = width / 2.0 + l.p1[0];
+                        double p1y = height / 2.0 - l.p1[1];
+
+                        double p2 = width / 2.0 + l.p2[0];
+                        double p2y = height / 2.0 - l.p2[1];
+
+                        double angle = Util.getAngle(p2 - p1, p2y - p1y) - 90;
+
+                        context.save();
+                        context.rotate(angle);
+
+                        double[] p1r = Util.rotate(p1, p1y, angle);
+
+                        double mag = Util.dist(p1, p1y, p2, p2y);
+
+                        context.fillRect(p1r[0], p1r[1] - 2, mag, 4);
+
+                        context.restore();
+
+                    });
+
+                });
+
+                context.setFill(Color.WHITESMOKE);
+                context.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 20));
+                context.fillText("Pitch: 30 degrees", 100, 100);
+                context.fillText("Yaw: " + 0 + " degrees", 100, 120);
+                context.fillText("Roll: 0 degrees", 100, 140);
+
+            }
+
+        }.start();
+
+    }
+
+    /**
+     * Listens for escape key press and exits
+     */
+    @Override
+    public void handle(KeyEvent event) {
+
+        if(event.getCode().getName().equals("Esc"))
+            System.exit(0);
+
+        if(event.getEventType() == KeyEvent.KEY_PRESSED)
+            input.add(event.getCode().toString().toLowerCase());
+        else if(event.getEventType() == KeyEvent.KEY_RELEASED)
+            input.remove(event.getCode().toString().toLowerCase());
+
+    }
+}

@@ -10,11 +10,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+
 import java.awt.*;
-import java.util.HashSet;
 import java.util.List;
 
-public class Screen extends Application implements EventHandler<KeyEvent> {
+public class Screen extends Application implements EventHandler<KeyEvent>, ScreenI {
 
     private GraphicsContext context;
     private static int width = 1000;
@@ -22,9 +22,6 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
     public static Screen instance;
     public static List<Line> lines;
-
-    private static HashSet<String> input = new HashSet<>();
-
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -72,7 +69,7 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 //        double rScale = 1;
 //
 
-        Player player = new Player();
+        Player player = new Player(this);
 
         new AnimationTimer(){
 
@@ -88,18 +85,39 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
 
                 context.setFill(Color.YELLOW);
 
-                player.tick(0);
+                player.tick();
 
 //                double ang = Math.toRadians(Util.getAngle(player.x, player.y));
-//                thetaY = player.angle / 2.0;
+                thetaY = player.angle;
 
 //                thetaY = Math.toRadians(-45);
 
-                lines = Main.getLines(Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ), Main.points));
+//                lines = Main.getLines(Util.mult(new double[][]{{1, 0, 0}, {0, Math.abs(Math.sin(player.angle)) / 2.0 + 1, 0}, {0, 0, 1}}, Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ),
+//                        Util.translate(Main.points, 0, 0, player.y))));
+//
+//                double[][] grid = new double[3][40];
+//                for(int i = -10; i < 9; i++){
+//                    for(int j = 0; j < 2; j++) {
+//                        grid[0][i * 2 + j + 20] = i;
+//                        grid[1][i * 2 + j + 20] = 3 * (j == 0 ? 1 : -1);
+//                        grid[2][i * 2 + j + 20] = 0;
+//                    }
+//                }
+//
+//                grid = Main.getDisplayed(Util.mult(new double[][]{{1, 0, 0}, {0, Math.abs(Math.sin(player.angle)) + 1, 0}, {0, 0, 1}}, Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ),
+//                        Util.translate(grid, 0, 0, player.y))));
+//                for (int i = 0; i < grid.length; i += 2)
+//                    lines.add(new Line(grid[i], grid[i + 1]));
+
+//                lines.addAll(Main.getGridLines(Util.mult(new double[][]{{1, 0, 0}, {0, Math.abs(Math.sin(player.angle)) + 1, 0}, {0, 0, 1}}, Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ),
+//                        Util.translate(Main.gridPoints, 0, 0, player.y)))));
 
                 double dX = 0;
 //                double dX = player.x + Math.sin(player.angle) * (width / 2.0 + 100);
 //                double dY = player.y + Math.sin(ang) * 100;
+
+                lines = Main.getLines(Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ),
+                        Main.points), Main.lineIndices);
 
                 if(lines != null){// && Math.cos(player.angle) >= 0){
                     lines.forEach(l -> {
@@ -174,10 +192,4 @@ public class Screen extends Application implements EventHandler<KeyEvent> {
             input.remove(event.getCode().toString().toLowerCase());
 
     }
-
-    public static boolean isPressed(String str){
-        return input.contains(str.toLowerCase());
-    }
-
-
 }
