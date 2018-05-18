@@ -117,7 +117,7 @@ public class Screen2 extends Application implements EventHandler<KeyEvent>, Scre
                 context.setFill(Color.WHITESMOKE);
                 context.setFont(Font.font("Verdana", FontWeight.EXTRA_BOLD, 20));
                 context.fillText("Pitch: 30 degrees", 100, 100);
-                context.fillText("Yaw: " + 0 + " degrees", 100, 120);
+                context.fillText("Yaw: " + (int)Math.toDegrees(player.angle) + " degrees", 100, 120);
                 context.fillText("Roll: 0 degrees", 100, 140);
 
             }
