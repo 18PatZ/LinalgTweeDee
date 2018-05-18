@@ -57,10 +57,13 @@ public class Screen2 extends Application implements EventHandler<KeyEvent>, Scre
         scene.setOnKeyPressed(this);                                // Register oneself as the key press listener
         scene.setOnKeyReleased(this);
 
-        objekts.add(new Scale(this));
+        ScaleArm arm = new ScaleArm(this);
+        Scale scale = new Scale(this, arm);
+        objekts.add(scale);
+        objekts.add(arm);
 
         Powercube cube = new Powercube(this);
-        Player player = new Player(this);
+        Player player = new Player(this, scale);
         player.powercube = cube;
 
         objekts.add(player);
@@ -83,7 +86,7 @@ public class Screen2 extends Application implements EventHandler<KeyEvent>, Scre
 
                     o.tick();
 
-                    double[][] rot = Util.mult(Util.rotationMatrix(0, o.angle, 0), o.points);
+                    double[][] rot = Util.mult(Util.rotationMatrix(0, o.angle, o.roll), o.points);
 
                     Main.getLines(Util.mult(Util.rotationMatrix(Math.toRadians(30), 0, 0),
                             Util.translate(rot, o.x, o.vertical, o.y)), o.lineIndices).forEach(l -> {

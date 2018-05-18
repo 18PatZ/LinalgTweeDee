@@ -28,7 +28,9 @@ public class Powercube extends Objekt {
     @Override
     public void tick(){
         if(falling)
-            vertical = Math.max(-.125, vertical - 1.0 / 20.0);
+            vertical = Math.max(-.125, vertical - 1.0 / 10.0);
+        if(vertical == -.125)
+            falling = false;
     }
 
 }

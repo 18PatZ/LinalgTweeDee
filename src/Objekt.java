@@ -6,6 +6,7 @@ public abstract class Objekt {
     public int[][] lineIndices;
 
     public double angle;
+    public double roll;
     public double x = 0;
     public double y = 0;
     public double vertical = 0;

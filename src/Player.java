@@ -1,3 +1,5 @@
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 
 public class Player extends Objekt {
@@ -12,7 +14,10 @@ public class Player extends Objekt {
 
     public boolean compressed = true;
 
-    public Player(ScreenI screen){
+    Scale scale;
+
+    public Player(ScreenI screen, Scale scale){
+        this.scale = scale;
         this.screen = screen;
 
         color = Color.CADETBLUE;
@@ -29,6 +34,9 @@ public class Player extends Objekt {
     }
 
     long lC = 0;
+
+    MediaPlayer musicPlayer;
+    Media media = new Media(getClass().getResource("/elevator.mp3").toExternalForm());
 
     @Override
     public void tick(){
@@ -54,21 +62,47 @@ public class Player extends Objekt {
         if(screen.isPressed("C") && (System.currentTimeMillis() - lC >= 250)){
             lC = System.currentTimeMillis();
             compressed = !compressed;
-
-            if(compressed && !hasCube && elevator < .1)
-                if(Math.sqrt(Math.pow(powercube.x - x, 2) + Math.pow(powercube.y - y, 2)) <= 0.25)
-                    hasCube = true;
         }
 
-        if(screen.isPressed("Up"))
+        if(screen.isPressed("Up")) {
             elevator = Math.min(elevator + eSpeed, 1);
-        else if(screen.isPressed("Down"))
+
+            if(musicPlayer == null) {
+                musicPlayer = new MediaPlayer(media);
+                musicPlayer.play();
+            }
+        }
+        else if (screen.isPressed("Down")) {
             elevator = Math.max(elevator - eSpeed, 0.05);
+
+            if(musicPlayer == null) {
+                musicPlayer = new MediaPlayer(media);
+                musicPlayer.play();
+            }
+        }
+        else {
+            if(musicPlayer != null) {
+                musicPlayer.stop();
+                musicPlayer = null;
+            }
+        }
 
         for(int i = 10; i < 14; i++)
             points[1][i] = elevator * 2.5;
         points[1][14] = elevator * 1 + 1.5;
         points[1][15] = elevator * 1 + 1.5;
+
+        if(!hasCube && !powercube.falling && Math.abs(elevator * 2.5 - .125 - (powercube.vertical+.125)) <= .1) {
+            double cX = x + Math.cos(-angle) * (0.1 + .125);
+            double cY = y + Math.sin(-angle) * (0.1 + .125);
+            if (Math.sqrt(Math.pow(powercube.x - cX, 2) + Math.pow(powercube.y - cY, 2)) <= 0.25) {
+                hasCube = true;
+                compressed = true;
+                scale.arm.cube = null;
+                powercube.roll = 0;
+                scale.arm.position = 0;
+            }
+        }
 
         if(powercube != null){
             if(hasCube){
@@ -84,6 +118,36 @@ public class Player extends Objekt {
                     hasCube = false;
 
                 powercube.falling = !compressed;
+            }
+
+            if(powercube.falling && Math.abs(powercube.vertical - (2-.125)) <= 0.2){
+                double dx = powercube.x - scale.x;
+                double dy = powercube.y - scale.y;
+
+                double mag = Math.sqrt(dx * dx + dy * dy);
+                double angle = 0;
+
+                if(dy != 0)
+                    angle = Math.toDegrees(Math.atan(dy / dx)) + (dx > 0 ? 180 : 0);
+                else if(dx != 0)
+                    angle = dx > 0 ? 0 : 180;
+
+                angle = Math.toRadians(angle + 10);
+
+                double xp = Math.cos(angle) * mag;
+                double yp = Math.sin(angle) * mag;
+
+                if(yp <= .3 && yp >= -0.3) {
+                    boolean left = xp >= 0 && xp <= 0.8;
+                    boolean right = xp <= 0 && xp >= -0.8;
+                    if (left || right) {
+                        powercube.falling = false;
+                        powercube.vertical = 2 - 0.125;
+                        scale.arm.position = left ? 1 : 2;
+                        scale.arm.cube = powercube;
+                    }
+                }
+
             }
         }
 

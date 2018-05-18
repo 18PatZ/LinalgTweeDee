@@ -69,7 +69,7 @@ public class Screen extends Application implements EventHandler<KeyEvent>, Scree
 //        double rScale = 1;
 //
 
-        Player player = new Player(this);
+        Player player = new Player(this, null);
 
         new AnimationTimer(){
 
