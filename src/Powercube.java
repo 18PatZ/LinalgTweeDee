@@ -6,7 +6,9 @@ public class Powercube extends Objekt {
 
     public boolean falling = true;
 
-    public Powercube(ScreenI screen){
+    public Powercube(ScreenI screen, double x, double y){
+        this.x = x;
+        this.y = y;
         this.screen = screen;
 
         angle = Math.toRadians(0);

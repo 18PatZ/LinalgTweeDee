@@ -1,6 +1,7 @@
 import javafx.application.Application;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -20,11 +21,12 @@ public class Main {
             {{1, 2}, {3, 4}, {5, 6}};
 
     public static double[][] getDisplayed(double[][] points){
-        double[][] disp = new double[points[0].length][2];
+        double[][] disp = new double[points[0].length][3];
         for(int i = 0; i < points[0].length; i++){
             double[] col = Util.getColumn(points, i);
             disp[i][0] = col[0] * 100;
             disp[i][1] = col[1] * 100;
+            disp[i][2] = col[2] * 100;
         }
         return disp;
     }
@@ -35,7 +37,7 @@ public class Main {
         List<Line> lines = new ArrayList<>();
 
         for (int[] lineIndex : lineIndices)
-            lines.add(new Line(points[lineIndex[0] - 1], points[lineIndex[1] - 1]));
+            lines.add(new Line(Point.fromArray(points[lineIndex[0] - 1]), Point.fromArray(points[lineIndex[1] - 1])));
 
         return lines;
     }
@@ -46,7 +48,7 @@ public class Main {
         List<Line> lines = new ArrayList<>();
 
         for (int[] lineIndex : gridLineIndices)
-            lines.add(new Line(points[lineIndex[0] - 1], points[lineIndex[1] - 1]));
+            lines.add(new Line(Point.fromArray(points[lineIndex[0] - 1]), Point.fromArray(points[lineIndex[1] - 1])));
 
         return lines;
     }
@@ -70,6 +72,15 @@ public class Main {
 
 //        Screen.lines = getLines(Util.mult(Util.rotationMatrix(Math.PI / 2, 0, 0), points));
         Screen.lines = getLines(points, lineIndices);
+
+        Line l1 = new Line(new Point(0, 0, 0), new Point(4, 4, 0));
+        Line l2 = new Line(new Point(0, 4, 0), new Point(4, 0, 4));
+        Line l3 = new Line(new Point(0, 2, 0), new Point(2, 0, 0));
+        System.out.println(Util.getIntercept(l1, l2).print());
+        System.out.println(Util.getIntercept(l1, l3).print());
+
+        System.out.println("");
+        Util.orderByDepth(Arrays.asList(l2, l1, l3)).forEach(l -> System.out.println(l.p1.print() + " " + l.p2.print()));
 
 //        Application.launch(Screen.class);
         Application.launch(Screen2.class);

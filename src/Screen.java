@@ -116,17 +116,17 @@ public class Screen extends Application implements EventHandler<KeyEvent>, Scree
 //                double dX = player.x + Math.sin(player.angle) * (width / 2.0 + 100);
 //                double dY = player.y + Math.sin(ang) * 100;
 
-                lines = Main.getLines(Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ),
-                        Main.points), Main.lineIndices);
+                lines = Util.orderByDepth(Main.getLines(Util.mult(Util.rotationMatrix(thetaX, thetaY, thetaZ),
+                        Main.points), Main.lineIndices));
 
                 if(lines != null){// && Math.cos(player.angle) >= 0){
                     lines.forEach(l -> {
 
-                        double p1 = width / 2.0 + l.p1[0];
-                        double p1y = height / 2.0 - l.p1[1];
+                        double p1 = width / 2.0 + l.p1.x;
+                        double p1y = height / 2.0 - l.p1.y;
 
-                        double p2 = width / 2.0 + l.p2[0];
-                        double p2y = height / 2.0 - l.p2[1];
+                        double p2 = width / 2.0 + l.p2.x;
+                        double p2y = height / 2.0 - l.p2.y;
 
                         double angle = Util.getAngle(p2 - p1, p2y - p1y) - 90;
 

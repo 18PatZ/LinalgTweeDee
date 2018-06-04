@@ -45,6 +45,8 @@ public class Player extends Objekt {
         double speed = Math.PI * 2.0 / 180.0 * 4.0;
         double eSpeed = 1.0 / 40.0;
 
+        speed *= (1.2 - elevator / 2.0);
+
         if(screen.isPressed("A"))
             angle += tSpeed;
         else if(screen.isPressed("D"))
@@ -92,17 +94,56 @@ public class Player extends Objekt {
         points[1][14] = elevator * 1 + 1.5;
         points[1][15] = elevator * 1 + 1.5;
 
-        if(!hasCube && !powercube.falling && Math.abs(elevator * 2.5 - .125 - (powercube.vertical+.125)) <= .1) {
-            double cX = x + Math.cos(-angle) * (0.1 + .125);
-            double cY = y + Math.sin(-angle) * (0.1 + .125);
-            if (Math.sqrt(Math.pow(powercube.x - cX, 2) + Math.pow(powercube.y - cY, 2)) <= 0.25) {
-                hasCube = true;
-                compressed = true;
-                scale.arm.cube = null;
-                powercube.roll = 0;
-                scale.arm.position = 0;
+        screen.getCubes().forEach(cube -> {
+
+            if(!hasCube && !cube.falling && Math.abs(elevator * 2.5 - .125 - (cube.vertical+.125)) <= .05) {
+                double cX = x + Math.cos(-angle) * (0.1 + .125);
+                double cY = y + Math.sin(-angle) * (0.1 + .125);
+                if (Math.sqrt(Math.pow(cube.x - cX, 2) + Math.pow(cube.y - cY, 2)) <= 0.25) {
+                    hasCube = true;
+                    compressed = true;
+                    scale.arm.left.remove(cube);
+                    scale.arm.right.remove(cube);
+                    cube.roll = 0;
+                    scale.arm.position = 0;
+
+                    powercube = cube;
+                }
             }
-        }
+
+            if(cube.falling && Math.abs(cube.vertical - (1.8-.125)) <= 0.2){
+                double dx = cube.x - scale.x;
+                double dy = cube.y - scale.y;
+
+                double mag = Math.sqrt(dx * dx + dy * dy);
+                double angle = 0;
+
+                if(dy != 0)
+                    angle = Math.toDegrees(Math.atan(dy / dx)) + (dx > 0 ? 180 : 0);
+                else if(dx != 0)
+                    angle = dx > 0 ? 0 : 180;
+
+                angle = Math.toRadians(angle + 10);
+
+                double xp = Math.cos(angle) * mag;
+                double yp = Math.sin(angle) * mag;
+
+                double yM = 0.5;
+                double xM = 0.8;
+
+                if(yp <= yM && yp >= -yM) {
+                    boolean left = xp >= 0 && xp <= xM;
+                    boolean right = xp <= 0 && xp >= -xM;
+                    if (left || right) {
+                        cube.falling = false;
+                        cube.vertical = 2 - 0.125;
+                        scale.arm.position = left ? 1 : 2;
+                        (left ? scale.arm.left : scale.arm.right).add(cube);
+                    }
+                }
+            }
+
+        });
 
         if(powercube != null){
             if(hasCube){
@@ -118,36 +159,6 @@ public class Player extends Objekt {
                     hasCube = false;
 
                 powercube.falling = !compressed;
-            }
-
-            if(powercube.falling && Math.abs(powercube.vertical - (2-.125)) <= 0.2){
-                double dx = powercube.x - scale.x;
-                double dy = powercube.y - scale.y;
-
-                double mag = Math.sqrt(dx * dx + dy * dy);
-                double angle = 0;
-
-                if(dy != 0)
-                    angle = Math.toDegrees(Math.atan(dy / dx)) + (dx > 0 ? 180 : 0);
-                else if(dx != 0)
-                    angle = dx > 0 ? 0 : 180;
-
-                angle = Math.toRadians(angle + 10);
-
-                double xp = Math.cos(angle) * mag;
-                double yp = Math.sin(angle) * mag;
-
-                if(yp <= .3 && yp >= -0.3) {
-                    boolean left = xp >= 0 && xp <= 0.8;
-                    boolean right = xp <= 0 && xp >= -0.8;
-                    if (left || right) {
-                        powercube.falling = false;
-                        powercube.vertical = 2 - 0.125;
-                        scale.arm.position = left ? 1 : 2;
-                        scale.arm.cube = powercube;
-                    }
-                }
-
             }
         }
 

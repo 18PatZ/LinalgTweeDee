@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class Util {
 
     public static double[][] mult(double[][] a, double[][] b){
@@ -31,6 +33,129 @@ public class Util {
 
     public static double dist(double x1, double y1, double x2, double y2){
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
+
+    /*public static List<Line> orderByDepth(List<Line> lines){
+
+        List<Line> finalLines = new ArrayList<>();
+
+//        HashMap<Point, List<Line>> segs = new HashMap<>();
+
+        List<Intercept> segments = new ArrayList<>();
+
+        HashMap<Line, List<Intercept>> cepts = new HashMap<>();
+
+        for(int i = 0; i < lines.size(); i++){
+            if(!cepts.containsKey(lines.get(i)))
+                cepts.put(lines.get(i), new ArrayList<>());
+
+            for(int j = i + 1; j < lines.size(); j++){
+                if(!cepts.containsKey(lines.get(j)))
+                    cepts.put(lines.get(j), new ArrayList<>());
+
+                Point intercept = getIntercept(lines.get(i), lines.get(j));
+                if(intercept != null){
+                    cepts.get(lines.get(j)).add(new Intercept(intercept, lines.get(j)));
+                    cepts.get(lines.get(i)).add(new Intercept(new Point(intercept.x, intercept.y, getZOnLine(intercept, lines.get(i))), lines.get(i)));
+                }
+            }
+        }
+
+        cepts.keySet().forEach(k -> {
+
+            List<Intercept> list = cepts.get(k);
+            Collections.sort(list, Comparator.comparing(c -> ((Double) c.point.x)));
+
+            if(list.size() == 0)
+                finalLines.add(k);
+
+            for(int i = 0; i < list.size(); i++){
+
+                Point p1;
+                Point p2;
+
+                if(k.p1.x < k.p2.x){
+                    p1 = k.p1;
+                    p2 = k.p2;
+                }
+                else {
+                    p1 = k.p2;
+                    p2 = k.p1;
+                }
+
+                Intercept inter = list.get(i);
+
+                Point left;
+                Point right;
+
+                if(i == 0) left =p1;
+                else
+                    left = Point.midpoint(list.get(i - 1).point, inter.point);
+
+                if(i == list.size() - 1) right = p2;
+                else
+                    right = Point.midpoint(inter.point, list.get(i + 1).point);
+
+                Line line = new Line(left, right);
+                line.color = k.color;
+
+                segments.add(new Intercept(inter.point, line));
+
+            }
+
+        });
+
+        Collections.sort(segments, Comparator.comparing(c -> -c.point.z));
+
+        segments.forEach(s -> finalLines.add(s.line));
+
+        return finalLines;
+    }*/
+
+    public static List<Line> orderByDepth(List<Line> lines){
+        List<Intercept> points = new ArrayList<>();
+
+        for(int i = 0; i < lines.size(); i++){
+            Line line = lines.get(i);
+            points.add(new Intercept(Point.midpoint(line.p1, line.p2), line));
+        }
+
+        Collections.sort(points, Comparator.comparing(c -> c.point.z));
+
+        List<Line> nLines = new ArrayList<>();
+        points.forEach(p -> nLines.add(p.line));
+
+        return nLines;
+    }
+
+    public static Point getIntercept(Line l1, Line l2){
+
+        double s2 = getSlope(l2);
+
+        double slope = getSlope(l1) - s2;
+
+        double slice = l2.p1.y + s2 * (l1.p1.x - l2.p1.x);
+
+        double diff = -(l1.p1.y - slice);
+
+        double dx = diff / slope;
+
+        if(dx < 0) return null;
+
+        double nx = dx + l1.p1.x;
+        if(nx > l1.p2.x || nx > l2.p2.x || nx < l2.p1.x)
+            return null;
+
+        return new Point(nx, (nx - l2.p1.x) * s2 + l2.p1.y, (nx - l2.p1.x) * (l2.p2.z - l2.p1.z) / (l2.p2.x - l2.p1.x) + l2.p1.z);
+    }
+
+    public static double getZOnLine(Point p, Line l2){
+        return (p.x - l2.p1.x) * (l2.p2.z - l2.p1.z) / (l2.p2.x - l2.p1.x) + l2.p1.z;
+    }
+
+    public static double getSlope(Line line){
+        return (line.p2.y - line.p1.y) / (line.p2.x - line.p1.x);
     }
 
     public static double[] rotate(double x, double y, double theta){

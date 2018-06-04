@@ -1,12 +1,16 @@
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScaleArm extends Objekt {
 
     ScreenI screen;
 
     public int position = 0;
 
-    public Powercube cube;
+    public List<Powercube> left = new ArrayList<>();
+    public List<Powercube> right = new ArrayList<>();
 
     public ScaleArm(ScreenI screen){
         this.screen = screen;
@@ -16,7 +20,7 @@ public class ScaleArm extends Objekt {
         angle = Math.toRadians(10);
         roll = Math.toRadians(0);
 
-        vertical = 2;
+        vertical = 1.8;
 
         color = Color.SADDLEBROWN;
 
@@ -36,9 +40,11 @@ public class ScaleArm extends Objekt {
 
         double speed = Math.PI / 90.0;
 
+        position = (int) Math.signum(left.size() - right.size());
+
         if(position == 1)
             roll = Math.min(roll + speed, Math.toRadians(20));
-        else if(position == 2)
+        else if(position == -1)
             roll = Math.max(roll - speed, Math.toRadians(-20));
         else {
             if(roll >= 0)
@@ -47,17 +53,23 @@ public class ScaleArm extends Objekt {
                 roll = Math.min(0, roll + speed);
         }
 
+        left.forEach(c -> check(c, true));
+        right.forEach(c -> check(c, false));
+
+    }
+
+    private void check(Powercube cube, boolean left){
         if(cube != null) {
             cube.roll = roll;
+//            cube.angle = Math.toRadians(20);
 
             double dx = cube.x - x;
             double dy = cube.y - y;
 
             double mag = Math.sqrt(dx * dx + dy * dy);
 
-            cube.vertical = - Math.tan(Math.abs(roll)) * mag + 2;
+            cube.vertical = - Math.tan((left ? 1 : -1) * roll) * mag + 2;
         }
-
     }
 
 }
